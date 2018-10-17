@@ -90,10 +90,18 @@ static inline  __device__ void atomicAdd(short *address, short val) {
 }
 
 static inline __device__ void atomicAdd(long *address, long val) {
-  AtomicAddIntegerImpl<long, sizeof(long)>()(address, val);
 }
 
 #ifdef CUDA_HALF_TENSOR
+#if !(__CUDA_ARCH__ >= 700 || !defined(__CUDA_ARCH__) )
+ static inline  __device__ void atomicAdd(half *address, half val) {
+   unsigned int * address_as_ui =
+       (unsigned int *) ((char *)address - ((size_t)address & 2));
+@@ -117,6 +118,7 @@ static inline  __device__ void atomicAdd(half *address, half val) {
+    } while (assumed != old);
+ }
+ #endif
+
 static inline  __device__ void atomicAdd(half *address, half val) {
   unsigned int * address_as_ui =
       (unsigned int *) ((char *)address - ((size_t)address & 2));
